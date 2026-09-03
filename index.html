@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        /* Clock */
+        .clock-section {
+            text-align: center;
+        }
+
+        .time {
+            font-size: 6rem;
+            font-weight: 300;
+            letter-spacing: -2px;
+            line-height: 1;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        .date {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.7);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Search */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .search-box:focus {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            pointer-events: none;
+        }
+
+        .search-engines {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.75rem;
+        }
+
+        .search-engine {
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-engine:hover, .search-engine.active {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .link-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.2rem 1rem;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .link-card:hover::before {
+            opacity: 1;
+        }
+
+        .link-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        .link-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .link-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.85);
+        }
+
+        /* Add link button */
+        .add-link {
+            border: 2px dashed rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .add-link:hover {
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            margin-bottom: 0.75rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .modal-input:focus {
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* Context menu */
+        .context-menu {
+            position: fixed;
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+            display: none;
+            z-index: 200;
+            min-width: 160px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .context-menu-item {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .context-menu-item.danger {
+            color: #e94560;
+        }
+
+        .context-menu-item.danger:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        /* Icon picker */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .icon-option {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+
+        .icon-option:hover, .icon-option.selected {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        /* Greeting */
+        .greeting {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: -1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .time {
+                font-size: 4rem;
+            }
+            .quick-links {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Greeting -->
+        <div class="greeting" id="greeting">Good morning</div>
+
+        <!-- Clock -->
+        <div class="clock-section">
+            <div class="time" id="time">12:00</div>
+            <div class="date" id="date">Monday, January 1</div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" class="search-box" id="searchBox" placeholder="Search the web..." autocomplete="off">
+            <div class="search-engines">
+                <button class="search-engine active" data-engine="google">Google</button>
+                <button class="search-engine" data-engine="duckduckgo">DuckDuckGo</button>
+                <button class="search-engine" data-engine="bing">Bing</button>
+                <button class="search-engine" data-engine="youtube">YouTube</button>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links" id="quickLinks"></div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3 id="modalTitle">Add Link</h3>
+            <input type="text" class="modal-input" id="linkName" placeholder="Name">
+            <input type="text" class="modal-input" id="linkUrl" placeholder="URL (e.g., https://example.com)">
+            <div class="icon-grid" id="iconGrid"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" id="editLink">Edit</div>
+        <div class="context-menu-item danger" id="deleteLink">Delete</div>
+    </div>
+
+    <script>
+        // Since localStorage is unavailable in sandbox, use in-memory storage
+        // In a real browser extension/new tab, you'd use localStorage
+
+        const ICONS = ['🏠','📧','🎵','🎬','📰','🛒','💻','📱','🎮','📷','☁️','🔧','📅','📝','🔍','💬','🐦','📘','💼','🎓','🏦','✈️','🍕','⚽','🎨','🔒'];
+        
+        let links = [
+            { name: 'GitHub', url: 'https://github.com', icon: '💻' },
+            { name: 'Gmail', url: 'https://gmail.com', icon: '📧' },
+            { name: 'MLB', url: 'https://mlb.com', icon: '⚾' },
+            { name: 'Musescore', url: 'https://musescore.com', icon: '🎵' },
+            { name: 'Google Drive', url: 'https://drive.google.com', icon: '☁️' },
+            { name: 'Amazon Music', url: 'https://music.amazon.com', icon: '🎵' }
+        ];
+
+        let currentEngine = 'google';
+        let editingIndex = -1;
+        let selectedIcon = '🌐';
+        let contextMenuTarget = null;
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+
+            // Greeting
+            const hour = now.getHours();
+            let greeting = 'Good evening';
+            if (hour < 12) greeting = 'Good morning';
+            else if (hour < 17) greeting = 'Good afternoon';
+            document.getElementById('greeting').textContent = greeting;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 15 + 's';
+                p.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // Search
+        const searchEngines = {
+            google: 'https://www.google.com/search?q=',
+            duckduckgo: 'https://duckduckgo.com/?q=',
+            bing: 'https://www.bing.com/search?q=',
+            youtube: 'https://www.youtube.com/results?search_query='
+        };
+
+        document.querySelectorAll('.search-engine').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.search-engine').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentEngine = btn.dataset.engine;
+            });
+        });
+
+        document.getElementById('searchBox').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    window.location.href = searchEngines[currentEngine] + encodeURIComponent(query);
+                }
+            }
+        });
+
+        // Quick Links
+        function renderLinks() {
+            const container = document.getElementById('quickLinks');
+            container.innerHTML = '';
+            
+            links.forEach((link, index) => {
+                const card = document.createElement('a');
+                card.className = 'link-card';
+                card.href = link.url;
+                card.target = '_blank';
+                card.innerHTML = `
+                    <div class="link-icon">${link.icon}</div>
+                    <span class="link-name">${link.name}</span>
+                `;
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, index);
+                });
+                container.appendChild(card);
+            });
+
+            // Add button
+            const addBtn = document.createElement('div');
+            addBtn.className = 'link-card add-link';
+            addBtn.innerHTML = `
+                <div class="link-icon" style="background: transparent; font-size: 1.8rem;">+</div>
+                <span class="link-name">Add</span>
+            `;
+            addBtn.addEventListener('click', () => openModal());
+            container.appendChild(addBtn);
+        }
+
+        // Modal
+        const modal = document.getElementById('modal');
+        const iconGrid = document.getElementById('iconGrid');
+
+        function openModal(editIndex = -1) {
+            editingIndex = editIndex;
+            document.getElementById('modalTitle').textContent = editIndex >= 0 ? 'Edit Link' : 'Add Link';
+            
+            if (editIndex >= 0) {
+                document.getElementById('linkName').value = links[editIndex].name;
+                document.getElementById('linkUrl').value = links[editIndex].url;
+                selectedIcon = links[editIndex].icon;
+            } else {
+                document.getElementById('linkName').value = '';
+                document.getElementById('linkUrl').value = '';
+                selectedIcon = '🌐';
+            }
+            
+            renderIconGrid();
+            modal.classList.add('active');
+        }
+
+        function renderIconGrid() {
+            iconGrid.innerHTML = '';
+            ICONS.forEach(icon => {
+                const div = document.createElement('div');
+                div.className = 'icon-option' + (icon === selectedIcon ? ' selected' : '');
+                div.textContent = icon;
+                div.addEventListener('click', () => {
+                    selectedIcon = icon;
+                    renderIconGrid();
+                });
+                iconGrid.appendChild(div);
+            });
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const name = document.getElementById('linkName').value.trim();
+            let url = document.getElementById('linkUrl').value.trim();
+            
+            if (!name || !url) return;
+            if (!url.startsWith('http')) url = 'https://' + url;
+            
+            if (editingIndex >= 0) {
+                links[editingIndex] = { name, url, icon: selectedIcon };
+            } else {
+                links.push({ name, url, icon: selectedIcon });
+            }
+            
+            renderLinks();
+            closeModal();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Context Menu
+        const contextMenu = document.getElementById('contextMenu');
+
+        function showContextMenu(e, index) {
+            contextMenuTarget = index;
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.clientX + 'px';
+            contextMenu.style.top = e.clientY + 'px';
+        }
+
+        document.getElementById('editLink').addEventListener('click', () => {
+            if (contextMenuTarget !== null) {
+                openModal(contextMenuTarget);
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('deleteLink').addEventListener('click', () => {
+            if (contextMenuTarget !== null) {
+                links.splice(contextMenuTarget, 1);
+                renderLinks();
+            }
+            hideContextMenu();
+        });
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+            contextMenuTarget = null;
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target)) {
+                hideContextMenu();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                hideContextMenu();
+            }
+            if (e.key === '/' && document.activeElement !== document.getElementById('searchBox')) {
+                e.preventDefault();
+                document.getElementById('searchBox').focus();
+            }
+        });
+
+        // Init
+        renderLinks();
+        document.getElementById('searchBox').focus();
+    </script>
+</body>
+</html>
